@@ -15,4 +15,5 @@ numbers n = H.docTypeHtml $ do
          H.title "Natural numbers"
      H.body $ do
          H.p "A list of natural numbers:"
+         H.p $ "A list of Stuff"
          H.ul $ forM_ [1 .. n] (H.li . H.toHtml)

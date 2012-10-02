@@ -5,6 +5,7 @@ module SnapApp.Application where
 
 import           Prelude hiding ((.))
 import           Control.Category ((.))
+import           Data.Map
 
 import           Snap (SnapletInit, Snaplet, Handler, 
                  addRoutes, nestSnaplet, serveSnaplet,
@@ -17,14 +18,13 @@ import           Snap.Snaplet.Session
           
 import           SnapApp.Models
 
-
 ------------------------------------------------------------------------------
 -- App DataType
 ------------------------------------------------------------------------------
                      
 data App = App
-    { _acid :: Snaplet (Acid ApplicationState)
-	, _sess :: Snaplet SessionManager
+    { _acid        :: Snaplet (Acid ApplicationState)
+	, _sess        :: Snaplet SessionManager
     }
 
 type AppHandler = Handler App App

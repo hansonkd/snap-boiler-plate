@@ -5,46 +5,88 @@ module SnapApp.Views where
 import           Control.Applicative
 import           Control.Monad.IO.Class
 import           Data.ByteString (ByteString)
+import           Data.ByteString.UTF8 (fromString)
 import qualified Data.Map as M
-import           Data.String (fromString)
 import qualified Data.Text as T
 import           Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import           Network.HTTP.Conduit (withManager)
 import qualified Web.Authenticate.OpenId as OpenId
+import           Data.Aeson (FromJSON, ToJSON, decode, encode)
+import qualified Data.ByteString.Lazy.Char8 as BL
 
 import           SnapApp.Controllers
 import           SnapApp.Models
 import           SnapApp.Templates.ExampleBlazeTemplate (numbers)
-import           SnapApp.Forms (userForm, userView)
+import           SnapApp.Forms
 import           SnapApp.Utils (renderBlaze, renderBlazeForm)
 import           SnapApp.Application (AppHandler, sess)
+import           SnapApp.Templates.MasterTemplate
+import           SnapApp.UserUtils
 
 import           Snap.Snaplet.Session
 import           Snap.Snaplet (withTop)
-import           Snap (Handler)
 import           Snap.Core
 
 import           Snap.Snaplet.AcidState (update, query)
 import           Text.Digestive.Snap hiding (method)
+import           Data.UUID.V4
+import qualified Data.UUID (toString)
 
 ------------------------------------------------------------------------------
 -- Our Views
 ------------------------------------------------------------------------------
 
+-- | Render our master template
+renderMaster :: AppHandler ()
+renderMaster = do
+    renderBlaze $ renderBaseTemplate initTemplate
+
+-- | RESTFul API for CLI Utility
+restfulSubmit :: AppHandler ()
+restfulSubmit = do
+        modifyResponse (setContentType "application/json")
+        method POST process <|> errorMessage
+    where
+        process = do
+            req <- getRequest
+            let inp = rqPostParams req
+            writeBS (fromString $ show inp)
+        errorMessage = do
+            writeBS ("POST Requests only")
+        
 -- | Render our example Template
 renderNumbers :: AppHandler ()
 renderNumbers = do
     renderBlaze $ numbers 10
 
+
+-- | Change your name (this can only be done once from default)
+changeName :: AppHandler ()
+changeName = do
+    user <- restrictAccess
+    case name user of
+        "Lurker" -> do
+            (view, result) <- runForm "form" $ newNameForm
+            case result of
+                Just x -> do
+                    update (ChangeUser (user { name = fromString x }))
+                    writeBS (fromString x)
+                Nothing -> do
+                    renderBlaze $ renderBlazeForm view newNameView
+        _        -> writeBS ("Sorry you can't change your name")
+        
 -- | A small view that processes a Digestive Functor Form (Doesn't do anything
 -- | Functional)
-digestiveTest :: AppHandler ()
-digestiveTest = do
-	(view, result) <- runForm "form" userForm
-	case result of
-			Just x  -> writeBS("Recieved")
-			Nothing -> do
-				renderBlaze $ renderBlazeForm view userView
+changePassword :: AppHandler ()
+changePassword = do
+    user <- restrictAccess
+    (view, result) <- runForm "form" $ newPassForm user
+    case result of
+            Just x  -> do
+                    update (ChangeUser (user { uploadPassPhrase = fromString x }))
+                    writeBS(fromString x)
+            Nothing -> do
+            	renderBlaze $ renderBlazeForm view newPassView
 
 -- | Displays a form in to input a openId. Shows how to get raw POST data w/o
 -- | Digestive Functors
@@ -67,29 +109,6 @@ login x = do
 	url <- liftIO $ withManager $ OpenId.getForwardUrl 
 		(decodeUtf8 x) "http://localhost:8000/authenticate/landing" Nothing []
 	redirect (encodeUtf8 url)
-
--- | Demonstrates how to use Snap Sessions to retrieve our OpenId
-userIdSession :: AppHandler ()
-userIdSession = do
-	modifyResponse (setContentType "text/html")
-	withTop sess $ do
-		mui <- getFromSession "__user_id"
-		writeBS (fromString $ show mui)
-
--- | Create a user or get a user
-loginOrCreate :: ByteString -> AppHandler (OpenIdUser, Bool)
-loginOrCreate ui = do
-	possibleUser <- query $ LookupOpenIdUser ui
-	case possibleUser of
-			Just user -> return (user, False)
-			Nothing   -> update (InsertNewOpenIdUser ui) >>= \u -> return (u, True)
-
--- | Set a session and login the user
-checkin :: ByteString -> AppHandler (OpenIdUser, Bool)
-checkin ui = do
-	(user, created) <- loginOrCreate ui
-	withSession sess $ withTop sess $ setInSession "__user_id" (fromString $ show $ openIdIdentifier user)
-	return (user, created)
 
 -- | Helper function to Convert Snap Params to OpenId Param Format
 convertParams :: Params -> [(T.Text, T.Text)]

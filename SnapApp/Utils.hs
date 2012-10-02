@@ -1,18 +1,33 @@
 {-# LANGUAGE OverloadedStrings #-}
-module SnapApp.Utils
-    ( renderBlaze
-	, renderBlazeForm
-    ) where
-
-import Text.Blaze.Html (Html)
+module SnapApp.Utils where
+        
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as B
+import           Data.String (fromString)
+import qualified Data.Map as M
+import           Data.Maybe
+import           Data.String.Utils (replace)
+import           Text.Blaze.Html (Html)
 import qualified Text.Blaze.Html5 as H
-import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
-import Snap.Core (MonadSnap (..), addHeader, modifyResponse, writeLBS)
+import           Text.Blaze.Html.Renderer.Utf8 (renderHtml)
+import           Snap (liftIO)
+import           Snap.Core (MonadSnap (..), addHeader, modifyResponse, writeLBS)
 import qualified Data.Text as T
 
-import Text.Digestive
-import Text.Digestive.Blaze.Html5 as DB
-import Text.Digestive.Util
+import           Text.Digestive
+import           Text.Digestive.Blaze.Html5 as DB
+import           Text.Digestive.Util
+
+import           Data.UUID.V4
+import qualified Data.UUID (toString)
+
+------------------------------------------------------------------------------
+-- General Stuff
+------------------------------------------------------------------------------
+
+-- | Generate a V4 UUID
+getUUID :: IO ByteString
+getUUID = nextRandom >>= \ui -> return $ fromString $ Data.UUID.toString ui
 
 ------------------------------------------------------------------------------
 -- Blaze Helper Code

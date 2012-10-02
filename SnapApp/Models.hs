@@ -15,20 +15,25 @@ import           Data.IxSet ( Indexable(..), IxSet(..), ixFun, ixSet )
 ------------------------------------------------------------------------------
 
 data OpenIdUser = OpenIdUser
-  { openIdIdentifier:: ByteString
-  , name :: ByteString
-  } deriving (Show, Eq, Ord, Typeable) 
+    { uniqueIdentifier  :: ByteString
+    , openIdIdentifier  :: ByteString
+    , name              :: ByteString
+    , uploadPassPhrase  :: ByteString
+    } deriving (Show, Eq, Ord, Typeable) 
 
 deriveSafeCopy 0 'base ''OpenIdUser
 
 instance Indexable OpenIdUser where
-	empty = ixSet [ ixFun $ \u -> [openIdIdentifier u], ixFun $ \u -> [name u] ]
+    empty = ixSet [ ixFun $ \u -> [openIdIdentifier u]
+                  , ixFun $ \u -> [name u]
+                  , ixFun $ \u -> [uniqueIdentifier u] ]
+
 	
 data ApplicationState = ApplicationState
-    { allUsers  :: IxSet OpenIdUser
+    { allUsers           :: IxSet OpenIdUser
     } deriving (Show,Ord,Eq,Typeable)
 
-initApplicationState = ApplicationState {
-	allUsers = IxSet.empty}
+initApplicationState = ApplicationState 
+    { allUsers           = IxSet.empty }
 
 deriveSafeCopy 0 'base ''ApplicationState

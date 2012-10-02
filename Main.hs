@@ -15,7 +15,8 @@ import           Snap.Snaplet.AcidState (acidInit)
 
 import           SnapApp.Application (App (App), acid, sess)
 import           SnapApp.Models (initApplicationState)
-import           SnapApp.Routes (routes)
+import           SnapApp.Routes
+import           SnapApp.Utils
 
 ------------------------------------------------------------------------------
 -- Init Code
@@ -25,7 +26,7 @@ app :: SnapletInit App App
 app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     a <- nestSnaplet "acid" acid $ acidInit initApplicationState
     s <- nestSnaplet "sess" sess $ initCookieSessionManager "site_key.txt" "sess" Nothing -- | (Just 3600)
-    addRoutes routes
+    addRoutes $ routeList
     return $ App a s
 
 
