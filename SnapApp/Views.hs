@@ -59,8 +59,8 @@ changeName = do
             (view, result) <- runForm "form" $ newNameForm
             case result of
                 Just x -> do
-                    update (ChangeUser (user { name = fromString x }))
-                    writeBS (fromString x)
+                    update (ChangeUser (user { name = encodeUtf8 x }))
+                    writeBS (encodeUtf8 x)
                 Nothing -> do
                     heistLocal (bindDigestiveSplices view) $ render "newName"
         _        -> writeBS ("Sorry you can't change your name")
@@ -73,8 +73,8 @@ changePassword = do
     (view, result) <- runForm "form" $ newPassForm user
     case result of
             Just x  -> do
-                    update (ChangeUser (user { uploadPassPhrase = fromString x }))
-                    writeBS(fromString x)
+                    update (ChangeUser (user { uploadPassPhrase = x }))
+                    writeBS x
             Nothing -> do
             	heistLocal (bindDigestiveSplices view) $ render "newPassword"
 

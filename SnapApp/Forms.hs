@@ -3,11 +3,11 @@
 module SnapApp.Forms where
 
 import           Data.ByteString (ByteString)
-import           Data.ByteString.UTF8 (toString, fromString)
 import           Control.Applicative ((<$>), (<*>))
 import           Crypto.PasswordStore (makePassword)
 import           Data.Maybe (isJust)
 import           Data.Text as T
+import           Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 import           Text.Digestive
 import           Text.Digestive.Util
@@ -22,57 +22,24 @@ import           SnapApp.UserUtils (confirmOIDPassphrase, checkDuplicateUserName
 ------------------------------------------------------------------------------
 
 -- | Change Passwords
-newPassForm :: OpenIdUser -> Form T.Text AppHandler String
-newPassForm user = validateM checkPassword $ (,) <$> "originalPass"      .: checkM "Wrong Password" rightPassword (string Nothing)
+newPassForm :: OpenIdUser -> Form T.Text AppHandler ByteString
+newPassForm user = validateM checkPassword $ (,) <$> "originalPass"      .: checkM "Wrong Password" rightPassword (text Nothing)
                                                  <*> "passphrase"        .: passwordConfirmer
-                     where rightPassword pw = confirmOIDPassphrase user (fromString pw)
+                     where rightPassword pw = confirmOIDPassphrase user (encodeUtf8 pw)
                            -- Need to actually make the validation
                            checkPassword (pw, npw) = do
-                                         newPass <- liftIO $ makePassword (fromString npw) 12
-                                         return  $ Success $ toString newPass
+                                         newPass <- liftIO $ makePassword (encodeUtf8 npw) 12
+                                         return  $ Success $ newPass
 
 -- | See if the passwords are equal
-passwordConfirmer :: Monad m => Form T.Text m String
-passwordConfirmer = validate checkPasswords $ (,)   <$> ("p1" .: string Nothing)
-                                                    <*> ("p2" .: string Nothing)
+passwordConfirmer :: Monad m => Form T.Text m T.Text
+passwordConfirmer = validate checkPasswords $ (,)   <$> ("p1" .: text Nothing)
+                                                    <*> ("p2" .: text Nothing)
                     where checkPasswords (p1, p2) | p1 == p2  = Success p1
                                                   | otherwise = Error "Passwords must match"
                                                   
 -- | Get a name
-newNameForm :: Form T.Text AppHandler String
-newNameForm = "name" .: checkM "Name is taken" duplicateName (string Nothing)
-        where duplicateName n = (checkDuplicateUserName $ fromString n) >>= (\x -> return $ not x) 
-            
-{-                                                  
--- | Blaze Template that renders the form	 
-newNameView :: View H.Html -> H.Html
-newNameView view = do
-    H.h2 "New Name"
-    errorList "name" view
-    inputText "name" view
-    H.br                                        
-    
--- | Blaze Template that renders the form	 
-newPassView :: View H.Html -> H.Html
-newPassView view = do
-    errorList "originalPass" view
-    label     "originalPass" view "Current Password: "
-    inputPassword "originalPass" view
-    H.br
-	
-    H.h2 "New Password"
-    errorList "passphrase" view
-    passValidView $ subView "passphrase" view
-    H.br
-    
--- | The sub view
-passValidView :: View H.Html -> H.Html
-passValidView view = do
-    label         "p1" view "New Password: "
-    inputPassword "p1" view
-    H.br
-    
-    label         "p2" view "Confirm: "
-    inputPassword "p2" view
--}
+newNameForm :: Form T.Text AppHandler T.Text
+newNameForm = "name" .: checkM "Name is taken" duplicateName (text Nothing)
+        where duplicateName n = (checkDuplicateUserName $ encodeUtf8 n) >>= (\x -> return $ not x) 
 	
