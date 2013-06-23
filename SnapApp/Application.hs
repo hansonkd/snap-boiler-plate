@@ -3,18 +3,12 @@
 
 module SnapApp.Application where
 
-import           Prelude hiding ((.))
-import           Control.Category ((.))
-import           Data.Map
+import           Control.Lens
 
-import           Snap (SnapletInit, Snaplet, Handler, 
-                 addRoutes, nestSnaplet, serveSnaplet,
-                 defaultConfig, makeSnaplet, 
-                 snapletValue, writeText, 
-                 makeLens, getL, modL, modify, method)
-                 
-import           Snap.Snaplet.AcidState (Acid, HasAcid (getAcidStore))
-import           Snap.Snaplet.Session
+import           Snap.Snaplet
+import           Snap.Snaplet.Heist
+import           Snap.Snaplet.Session        
+import           Snap.Snaplet.AcidState
           
 import           SnapApp.Models
 
@@ -25,12 +19,16 @@ import           SnapApp.Models
 data App = App
     { _acid        :: Snaplet (Acid ApplicationState)
 	, _sess        :: Snaplet SessionManager
+	, _heist       :: Snaplet (Heist App)
     }
 
 type AppHandler = Handler App App
 
-makeLens ''App
+makeLenses ''App
 
 -- | So we don't have to use with acid
 instance HasAcid App ApplicationState where
-    getAcidStore = getL (snapletValue . acid)
+    getAcidStore = view (acid.snapletValue)
+
+instance HasHeist App where
+    heistLens = subSnaplet heist

@@ -5,14 +5,11 @@ module SnapApp.Forms where
 import           Data.ByteString (ByteString)
 import           Data.ByteString.UTF8 (toString, fromString)
 import           Control.Applicative ((<$>), (<*>))
-import           Control.Monad (liftM)
 import           Crypto.PasswordStore (makePassword)
 import           Data.Maybe (isJust)
 import           Data.Text as T
-import qualified Text.Blaze.Html5 as H
 
 import           Text.Digestive
-import           Text.Digestive.Blaze.Html5
 import           Text.Digestive.Util
 
 import           Snap (liftIO)
@@ -46,7 +43,7 @@ newNameForm :: Form T.Text AppHandler String
 newNameForm = "name" .: checkM "Name is taken" duplicateName (string Nothing)
         where duplicateName n = (checkDuplicateUserName $ fromString n) >>= (\x -> return $ not x) 
             
-                                                  
+{-                                                  
 -- | Blaze Template that renders the form	 
 newNameView :: View H.Html -> H.Html
 newNameView view = do
@@ -77,4 +74,5 @@ passValidView view = do
     
     label         "p2" view "Confirm: "
     inputPassword "p2" view
+-}
 	

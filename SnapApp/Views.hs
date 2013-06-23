@@ -16,11 +16,8 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 
 import           SnapApp.Controllers
 import           SnapApp.Models
-import           SnapApp.Templates.ExampleBlazeTemplate (numbers)
 import           SnapApp.Forms
-import           SnapApp.Utils (renderBlaze, renderBlazeForm)
 import           SnapApp.Application (AppHandler, sess)
-import           SnapApp.Templates.MasterTemplate
 import           SnapApp.UserUtils
 
 import           Snap.Snaplet.Session
@@ -28,9 +25,9 @@ import           Snap.Snaplet (withTop)
 import           Snap.Core
 
 import           Snap.Snaplet.AcidState (update, query)
+import           Snap.Snaplet.Heist (heistLocal, render)
 import           Text.Digestive.Snap hiding (method)
-import           Data.UUID.V4
-import qualified Data.UUID (toString)
+import           Text.Digestive.Heist (bindDigestiveSplices)
 
 ------------------------------------------------------------------------------
 -- Our Views
@@ -38,8 +35,7 @@ import qualified Data.UUID (toString)
 
 -- | Render our master template
 renderMaster :: AppHandler ()
-renderMaster = do
-    renderBlaze $ renderBaseTemplate initTemplate
+renderMaster = render "home"
 
 -- | RESTFul API for CLI Utility
 restfulSubmit :: AppHandler ()
@@ -54,12 +50,6 @@ restfulSubmit = do
         errorMessage = do
             writeBS ("POST Requests only")
         
--- | Render our example Template
-renderNumbers :: AppHandler ()
-renderNumbers = do
-    renderBlaze $ numbers 10
-
-
 -- | Change your name (this can only be done once from default)
 changeName :: AppHandler ()
 changeName = do
@@ -72,7 +62,7 @@ changeName = do
                     update (ChangeUser (user { name = fromString x }))
                     writeBS (fromString x)
                 Nothing -> do
-                    renderBlaze $ renderBlazeForm view newNameView
+                    heistLocal (bindDigestiveSplices view) $ render "newName"
         _        -> writeBS ("Sorry you can't change your name")
         
 -- | A small view that processes a Digestive Functor Form (Doesn't do anything
@@ -86,7 +76,7 @@ changePassword = do
                     update (ChangeUser (user { uploadPassPhrase = fromString x }))
                     writeBS(fromString x)
             Nothing -> do
-            	renderBlaze $ renderBlazeForm view newPassView
+            	heistLocal (bindDigestiveSplices view) $ render "newPassword"
 
 -- | Displays a form in to input a openId. Shows how to get raw POST data w/o
 -- | Digestive Functors

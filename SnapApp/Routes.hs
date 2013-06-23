@@ -17,9 +17,8 @@ routeList :: [(ByteString, AppHandler ())]
 routeList  = [ ("", serveDirectory "resources/static")
              , ("/", renderMaster)
              , ("/restful/submit",  restfulSubmit)
-             , ("/numbers", renderNumbers)
              , ("/authenticate", authenticate)
              , ("/authenticate/landing", authenticateLanding)
-             , ("/authenticate/changePassword", changePassword)
-             , ("/authenticate/changeName", changeName)
+             , ("/authenticate/changePassword/", changePassword)
+             , ("/authenticate/changeName/", changeName)
              ]
