@@ -13,7 +13,7 @@ This Boilerplate provides many things which should provide a good base for anyon
 * Snap base
 * OpenId
 * Digestive Functors
-* Blaze HTML Templating Engine
+* Heist Templates
 * IxSet for Multiple Key Based data structures
 * Acid State for persistence
 * Snap Sessions used for OpenId Login
@@ -47,6 +47,3 @@ What this boiler plate project includes
 
     SnapApp/Controllers.hs
 >This is a mix of IxSet and AcidState. It uses IxSet to query our users, and uses AcidState to keep things persistent. See the [HappStack Tutorial](http://happstack.com/docs/crashcourse/AcidState.html) for more information.
-
-    SnapApp/Templates/ExampleBlazeTemplate.hs
-> You want to keep your templates seperate from your view code. 
