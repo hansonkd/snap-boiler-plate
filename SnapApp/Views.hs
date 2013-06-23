@@ -59,7 +59,7 @@ changeName = do
             (view, result) <- runForm "form" $ newNameForm
             case result of
                 Just x -> do
-                    update (ChangeUser (user { name = encodeUtf8 x }))
+                    update (ChangeUser (user { name = x }))
                     writeBS (encodeUtf8 x)
                 Nothing -> do
                     heistLocal (bindDigestiveSplices view) $ render "newName"
@@ -74,7 +74,7 @@ changePassword = do
     case result of
             Just x  -> do
                     update (ChangeUser (user { uploadPassPhrase = x }))
-                    writeBS x
+                    writeBS (encodeUtf8 x)
             Nothing -> do
             	heistLocal (bindDigestiveSplices view) $ render "newPassword"
 
@@ -112,7 +112,7 @@ authenticateLanding = do
 	oir <- liftIO $ withManager $ OpenId.authenticateClaimed (convertParams (rqParams req)) :: AppHandler (OpenId.OpenIdResponse)
 	case OpenId.oirClaimed oir of
 			Just ident -> do
-					(user, created) <- checkin (encodeUtf8 $ OpenId.identifier $ ident)
+					(user, created) <- checkin (OpenId.identifier $ ident)
 					case created of
 						False -> writeBS ("Welcome Back")
 						True  -> writeBS ("Hello New User")

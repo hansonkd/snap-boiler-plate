@@ -3,7 +3,7 @@
 
 module SnapApp.Models where
     
-import           Data.ByteString (ByteString)
+import qualified Data.Text as T
 import           Data.SafeCopy (base, deriveSafeCopy)
 import           Data.Typeable (Typeable)
 import qualified Data.IxSet as IxSet
@@ -15,10 +15,10 @@ import           Data.IxSet ( Indexable(..), IxSet(..), ixFun, ixSet )
 ------------------------------------------------------------------------------
 
 data OpenIdUser = OpenIdUser
-    { uniqueIdentifier  :: ByteString
-    , openIdIdentifier  :: ByteString
-    , name              :: ByteString
-    , uploadPassPhrase  :: ByteString
+    { uniqueIdentifier  :: T.Text
+    , openIdIdentifier  :: T.Text
+    , name              :: T.Text
+    , uploadPassPhrase  :: T.Text
     } deriving (Show, Eq, Ord, Typeable) 
 
 deriveSafeCopy 0 'base ''OpenIdUser

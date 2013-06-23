@@ -8,9 +8,8 @@ module SnapApp.Controllers where
 
 import           Control.Monad.Reader (ask)
 import           Control.Monad.State  (get, put)
-import           Data.ByteString (ByteString)  
 import qualified Data.IxSet as IxSet
-import           Data.String (fromString)
+import qualified Data.Text as T
 
 
 import           SnapApp.Models
@@ -30,19 +29,19 @@ changeUser uu = do
     put $ a { allUsers = IxSet.updateIx (openIdIdentifier uu) uu allUsers }
 
 -- | Look up a user by name
-lookupName :: ByteString -> Query ApplicationState (Maybe OpenIdUser)
+lookupName :: T.Text -> Query ApplicationState (Maybe OpenIdUser)
 lookupName ui = do
 	ApplicationState {..} <- ask
 	return $ IxSet.getOne $ allUsers IxSet.@= ui
 
 -- | Look up a user by OpenID
-lookupOpenIdUser :: ByteString -> Query ApplicationState (Maybe OpenIdUser)
+lookupOpenIdUser :: T.Text -> Query ApplicationState (Maybe OpenIdUser)
 lookupOpenIdUser ui = do
 	ApplicationState {..} <- ask
 	return $ IxSet.getOne $ allUsers IxSet.@= ui
 
 -- | Insert a user (Note, this does not check for unique ID)
-insertNewOpenIdUser :: ByteString -> ByteString -> ByteString -> ByteString -> Update ApplicationState OpenIdUser
+insertNewOpenIdUser :: T.Text -> T.Text -> T.Text -> T.Text -> Update ApplicationState OpenIdUser
 insertNewOpenIdUser uuid openident nname passphrase = do
     a@ApplicationState{..} <- get
     let newUser = OpenIdUser { uniqueIdentifier = uuid

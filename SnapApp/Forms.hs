@@ -22,14 +22,14 @@ import           SnapApp.UserUtils (confirmOIDPassphrase, checkDuplicateUserName
 ------------------------------------------------------------------------------
 
 -- | Change Passwords
-newPassForm :: OpenIdUser -> Form T.Text AppHandler ByteString
+newPassForm :: OpenIdUser -> Form T.Text AppHandler T.Text
 newPassForm user = validateM checkPassword $ (,) <$> "originalPass"      .: checkM "Wrong Password" rightPassword (text Nothing)
                                                  <*> "passphrase"        .: passwordConfirmer
-                     where rightPassword pw = confirmOIDPassphrase user (encodeUtf8 pw)
+                     where rightPassword pw = confirmOIDPassphrase user pw
                            -- Need to actually make the validation
                            checkPassword (pw, npw) = do
                                          newPass <- liftIO $ makePassword (encodeUtf8 npw) 12
-                                         return  $ Success $ newPass
+                                         return  $ Success $ decodeUtf8 newPass
 
 -- | See if the passwords are equal
 passwordConfirmer :: Monad m => Form T.Text m T.Text
@@ -41,5 +41,5 @@ passwordConfirmer = validate checkPasswords $ (,)   <$> ("p1" .: text Nothing)
 -- | Get a name
 newNameForm :: Form T.Text AppHandler T.Text
 newNameForm = "name" .: checkM "Name is taken" duplicateName (text Nothing)
-        where duplicateName n = (checkDuplicateUserName $ encodeUtf8 n) >>= (\x -> return $ not x) 
+        where duplicateName n = (checkDuplicateUserName $ n) >>= (\x -> return $ not x) 
 	
