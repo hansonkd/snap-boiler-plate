@@ -2,11 +2,11 @@
 
 module SnapApp.UserUtils where
     
-import           Control.Monad (when)
+import           Control.Monad (when, void)
 import           Crypto.PasswordStore
 import           Data.ByteString (ByteString)
 import           Data.ByteString.UTF8 (fromString)
-import           Data.Maybe (fromMaybe, fromJust, isNothing)
+import           Data.Maybe (fromMaybe, fromJust, isNothing, isJust)
 import           Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 import           SnapApp.Application (AppHandler, sess)
@@ -22,9 +22,7 @@ import           Snap.Snaplet.Session
 
 -- | Restrict Access but throw away the result
 restrictAccess_ :: AppHandler ()
-restrictAccess_ = do
-    cu <- restrictAccess
-    return ()
+restrictAccess_ = void restrictAccess
     
 -- | Restrict Access but return the logged in user
 -- | Redirects to Signin Page
@@ -45,9 +43,7 @@ confirmOIDPassphrase user pw = case uploadPassPhrase user of
 checkDuplicateUserName :: ByteString -> AppHandler (Bool)
 checkDuplicateUserName un = do
     possibleUser <- query $ LookupName un
-    case possibleUser of
-        Just _  -> return True
-        Nothing -> return False
+    return $ isJust possibleUser
 
 -- | Create a new user with the OpenID
 -- | Set name to default value and passphrase to nothing
