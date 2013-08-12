@@ -41,5 +41,4 @@ passwordConfirmer = validate checkPasswords $ (,)   <$> ("p1" .: text Nothing)
 -- | Get a name
 newNameForm :: Form T.Text AppHandler T.Text
 newNameForm = "name" .: checkM "Name is taken" duplicateName (text Nothing)
-        where duplicateName n = (checkDuplicateUserName $ n) >>= (\x -> return $ not x) 
-	
+        where duplicateName n = (checkDuplicateUserName $ n) >>= (\x -> return $ not x)

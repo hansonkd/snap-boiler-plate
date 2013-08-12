@@ -14,7 +14,7 @@ import           SnapApp.Views
 ------------------------------------------------------------------------------
 
 routeList :: [(ByteString, AppHandler ())]
-routeList  = [ ("", serveDirectory "resources/static")
+routeList  = [ ("/static", serveDirectory "resources/static")
              , ("/", renderMaster)
              , ("/restful/submit",  restfulSubmit)
              , ("/authenticate", authenticate)

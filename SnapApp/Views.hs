@@ -54,12 +54,15 @@ restfulSubmit = do
 changeName :: AppHandler ()
 changeName = do
     user <- restrictAccess
-    case name user of
+    rq <- getRequest
+    liftIO $ print $ rqParams rq
+    return ()
+    case userName user of
         "Lurker" -> do
             (view, result) <- runForm "form" $ newNameForm
             case result of
                 Just x -> do
-                    update (ChangeUser (user { name = x }))
+                    update (ChangeUser (user { userName = x }))
                     writeBS (encodeUtf8 x)
                 Nothing -> do
                     heistLocal (bindDigestiveSplices view) $ render "newName"
@@ -82,18 +85,19 @@ changePassword = do
 -- | Digestive Functors
 authenticate :: AppHandler ()
 authenticate = do
+        rq <- getRequest
+        liftIO $ print $ rqParams rq
         modifyResponse (setContentType "text/html")
         method POST process <|> form
     where
         form = do
-            writeBS "Display form...<form method='POST'><input name='openid'></form>"
+            render "login"
         process = do
-			inp <- getParam "openid"
+			inp <- getParam "openid_identifier"
 			case inp of
 				Just x -> login x
-				Nothing -> writeBS ("error")
-			writeBS (fromString $ show inp)
-            
+				Nothing -> render "login"
+
 -- | The OpenID Function
 login x = do
 	url <- liftIO $ withManager $ OpenId.getForwardUrl 

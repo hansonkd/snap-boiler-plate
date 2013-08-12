@@ -1,0 +1,7 @@
+.hsenv
+state/*
+*/.DS_Store
+dist
+.DS_Store
+log
+SnapApp/.DS_Store

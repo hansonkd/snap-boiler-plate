@@ -13,11 +13,14 @@ import           Data.IxSet ( Indexable(..), IxSet(..), ixFun, ixSet )
 -- Our Models. In this case built on IxSet. Seperating them from Acid State
 -- code makes sure we know that we are using native Haskell DataTypes
 ------------------------------------------------------------------------------
+data OpenIdUserRoles = OpenIdUserRoles
+    { 
+    }
 
 data OpenIdUser = OpenIdUser
     { uniqueIdentifier  :: T.Text
     , openIdIdentifier  :: T.Text
-    , name              :: T.Text
+    , userName          :: T.Text
     , uploadPassPhrase  :: T.Text
     } deriving (Show, Eq, Ord, Typeable) 
 
@@ -25,7 +28,7 @@ deriveSafeCopy 0 'base ''OpenIdUser
 
 instance Indexable OpenIdUser where
     empty = ixSet [ ixFun $ \u -> [openIdIdentifier u]
-                  , ixFun $ \u -> [name u]
+                  , ixFun $ \u -> [userName u]
                   , ixFun $ \u -> [uniqueIdentifier u] ]
 
 	

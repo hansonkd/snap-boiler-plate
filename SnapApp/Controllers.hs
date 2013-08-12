@@ -46,7 +46,7 @@ insertNewOpenIdUser uuid openident nname passphrase = do
     a@ApplicationState{..} <- get
     let newUser = OpenIdUser { uniqueIdentifier = uuid
                              , openIdIdentifier = openident
-    						 , name = nname
+    						 , userName = nname
                              , uploadPassPhrase = passphrase
                              }
     put $ a { allUsers = IxSet.insert newUser allUsers }

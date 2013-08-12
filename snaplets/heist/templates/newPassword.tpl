@@ -1,20 +1,34 @@
 <apply template="base">
-  <bind tag="header">
-    <h1>Change Your Passphrase</h1>
-  </bind>
-  <bind tag="main">
-   <dfChildErrorList ref="" />
-	<form method="POST">
-		<dfLabel ref="originalPass">Old Passphrase: </dfLabel>
-		<dfInputText ref="originalPass" />
-		
-		<dfLabel ref="passphrase.p1">New Passphrase: </dfLabel>
-		<dfInputPassword ref="passphrase.p1" />
-		
-		<dfLabel ref="passphrase.p2">Repeat: </dfLabel>
-		<dfInputPassword ref="passphrase.p2" />
-	
-		<dfInputSubmit />
-	</form>
-  </bind>
+    <bind tag="page_title">
+        Change Your Passphrase
+    </bind>
+    <bind tag="main">
+        <div class="main-content">
+            <dfChildErrorList ref="" />
+            <form method="POST" class="form-horizontal">
+                <div class="form-group">
+                    <dfLabel ref="originalPass" class="col-lg-2 control-label">Old Passphrase: </dfLabel>
+                    <div class="col-lg-10">
+                        <dfInputPassword class="form-control" placeholder="Enter original passphrase" ref="originalPass" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <dfLabel ref="passphrase.p1" class="col-lg-2 control-label">New Passphrase: </dfLabel>
+                    <div class="col-lg-10">
+                        <dfInputPassword class="form-control" placeholder="Enter new passphrase" ref="passphrase.p1" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <dfLabel ref="passphrase.p2" class="col-lg-2 control-label">Repeat: </dfLabel>
+                    <div class="col-lg-10">
+                        <dfInputPassword class="form-control" placeholder="Repeat passphrase" ref="passphrase.p2" />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <dfInputSubmit class="btn btn-default"/>
+                </div>
+            </form>
+        </div>
+    </bind>
 </apply>
